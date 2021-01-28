@@ -6,7 +6,8 @@ module ActiveLinkTo
                       class_inactive
                       active_disable
                       wrap_tag
-                      wrap_class].freeze
+                      wrap_class
+                      excluded_parameters].freeze
   # Wrapper around link_to. Accepts following params:
   #   :active         => Boolean | Symbol | Regex | Controller/Action Pair
   #   :class_active   => String
@@ -39,7 +40,7 @@ module ActiveLinkTo
     css_class = link_options.delete(:class)
     wrap_tag  = active_options[:wrap_tag]
 
-    active = is_active_link?(url, active_options[:active])
+    active = is_active_link?(url, active_options[:active], active_options[:excluded_parameters])
     active_class = active_link_to_class(url, active_options)
     link_options['aria-current'] ||= 'page' if active
     link_options[:class] = "#{css_class} #{active_class}".strip
@@ -85,7 +86,7 @@ module ActiveLinkTo
   #   is_active_link?('/root', /^\/root/)
   #   is_active_link?('/root', ['users', ['show', 'edit']])
   #
-  def is_active_link?(url, condition = nil)
+  def is_active_link?(url, condition = nil, excluded_parameters = nil)
     @is_active_link ||= {}
     @is_active_link[[url, condition]] ||= begin
       case condition
